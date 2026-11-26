@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Achievements — Demo Casino</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .achievement-container {
+      width: 92%;
+      max-width: 650px;
+      margin: 30px auto;
+      padding: 22px;
+      background: #17121f;
+      border: 2px solid gold;
+      border-radius: 20px;
+    }
+
+    .achievement-container h2 {
+      text-align: center;
+      color: gold;
+      margin-bottom: 22px;
+    }
+
+    .achievement-card {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 16px;
+      margin-bottom: 13px;
+      background: #26202f;
+      border: 1px solid #59471c;
+      border-radius: 14px;
+    }
+
+    .achievement-icon {
+      font-size: 2.3rem;
+    }
+
+    .achievement-info {
+      flex: 1;
+    }
+
+    .achievement-info h3 {
+      color: gold;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .achievement-info p {
+      color: #bbb;
+      font-size: .85rem;
+    }
+
+    .achievement-status {
+      color: #888;
+      font-size: .75rem;
+      white-space: nowrap;
+    }
+
+    .unlocked {
+      border-color: #35c979;
+      background: #14271e;
+    }
+
+    .unlocked .achievement-status {
+      color: #5dff9d;
+    }
+
+    .progress-text {
+      text-align: center;
+      color: #ddd;
+      margin: 15px 0 20px;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      color: gold;
+      margin-top: 25px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <h1>🏆 Achievements</h1>
+    <div class="balance-box">
+      🪙 <span id="balance">1000</span>
+    </div>
+  </header>
+
+  <main class="achievement-container">
+
+    <h2>🏆 Your Achievements</h2>
+
+    <p class="progress-text" id="progress">
+      Loading achievements...
+    </p>
+
+    <div id="achievementList"></div>
+
+    <a href="index.html" class="back-link">
+      ← Back to Home
+    </a>
+
+  </main>
+
+  <script>
+    const USER_KEY = "demoCasinoUser";
+
+    try {
+      const user = JSON.parse(
+        localStorage.getItem(USER_KEY) || "null"
+      );
+
+      if (!user || !user.name) {
+        location.href = "login.html";
+      }
+    } catch (e) {
+      location.href = "login.html";
+    }
+
+    const achievements = [
+      {
+        id: "first_game",
+        icon: "🎮",
+        title: "First Game",
+        description: "প্রথমবার একটি গেম খেলো।"
+      },
+      {
+        id: "first_win",
+        icon: "🥇",
+        title: "First Victory",
+        description: "প্রথমবার একটি গেম জিতো।"
+      },
+      {
+        id: "rookie",
+        icon: "⭐",
+        title: "Rookie Player",
+        description: "মোট ১০টি গেম খেলো।"
+      },
+      {
+        id: "winner_5",
+        icon: "🏅",
+        title: "Five Wins",
+        description: "মোট ৫টি গেম জিতো।"
+      },
+      {
+        id: "jackpot",
+        icon: "💎",
+        title: "Big Winner",
+        description: "একবারে ৫০০ বা তার বেশি virtual coins লাভ করো।"
+      },
+      {
+        id: "all_games",
+        icon: "👑",
+        title: "Game Explorer",
+        description: "তিনটি আলাদা গেমই খেলো।"
+      }
+    ];
+
+    const saved = (() => {
+      try {
+        return JSON.parse(
+          localStorage.getItem("demoCasinoAchievements") || "{}"
+        );
+      } catch (e) {
+        return {};
+      }
+    })();
+
+    const list = document.getElementById("achievementList");
+    let unlockedCount = 0;
+
+    achievements.forEach(item => {
+      const unlocked = saved[item.id]?.unlocked === true;
+
+      if (unlocked) unlockedCount++;
+
+      const card = document.createElement("div");
+      card.className = "achievement-card" +
+        (unlocked ? " unlocked" : "");
+
+      const icon = document.createElement("div");
+      icon.className = "achievement-icon";
+      icon.textContent = item.icon;
+
+      const info = document.createElement("div");
+      info.className = "achievement-info";
+
+      const title = document.createElement("h3");
+      title.textContent = item.title;
+
+      const description = document.createElement("p");
+      description.textContent = item.description;
+
+      info.append(title, description);
+
+      const status = document.createElement("div");
+      status.className = "achievement-status";
+      status.textContent = unlocked ? "UNLOCKED ✓" : "LOCKED 🔒";
+
+      card.append(icon, info, status);
+      list.appendChild(card);
+    });
+
+    document.getElementById("progress").textContent =
+      unlockedCount + " / " + achievements.length +
+      " Achievements Unlocked";
+
+    try {
+      const data = JSON.parse(
+        localStorage.getItem("demoCasinoData") || "null"
+      );
+
+      if (data && typeof data.balance === "number") {
+        document.getElementById("balance").textContent =
+          data.balance;
+      }
+    } catch (e) {}
+  </script>
+
+</body>
+</html>
