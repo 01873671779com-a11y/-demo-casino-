@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -121,6 +122,9 @@
 
   </main>
 
+  <script src="achievements.js"></script>
+  <script src="stats.js"></script>
+
   <script>
     const KEY = "demoCasinoData";
 
@@ -176,6 +180,8 @@
     }
 
     function newCard() {
+      if (resolving) return;
+
       const card = randomCard();
       currentRank = card.rank;
       renderCard(card);
@@ -209,10 +215,16 @@
       renderCard(next);
       data.balance -= bet;
 
+      let gameResult = "loss";
+      let netWin = 0;
+
       if (next.rank === previousRank) {
         data.balance += bet;
+        gameResult = "tie";
+
         result.textContent =
           "🤝 একই কার্ড! তোর coins ফেরত দেওয়া হয়েছে।";
+
       } else {
         const won =
           (choice === "higher" && next.rank > previousRank) ||
@@ -221,16 +233,24 @@
         if (won) {
           const payout = bet * 2;
           data.balance += payout;
+          gameResult = "win";
+          netWin = bet;
+
           result.textContent =
             "🎉 ঠিক ধরেছিস! +" + payout + " virtual coins!";
         } else {
-          result.textContent = "😅 ভুল হয়েছে! আবার চেষ্টা কর।";
+          result.textContent =
+            "😅 ভুল হয়েছে! আবার চেষ্টা কর।";
         }
       }
 
       currentRank = next.rank;
       data.bet = bet;
       saveData();
+
+      if (typeof recordResult === "function") {
+        recordResult("cards", gameResult, netWin);
+      }
 
       resolving = false;
       setButtons(false);
