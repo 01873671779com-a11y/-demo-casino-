@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High-Low Cards — Demo Casino</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .card-box {
+      width: 90%;
+      max-width: 430px;
+      margin: 35px auto;
+      padding: 25px 15px;
+      text-align: center;
+      background: #17121f;
+      border: 2px solid gold;
+      border-radius: 20px;
+    }
+
+    .playing-card {
+      width: 110px;
+      height: 150px;
+      margin: 25px auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      color: #111;
+      border-radius: 12px;
+      font-size: 2.5rem;
+      box-shadow: 0 5px 15px #0008;
+    }
+
+    .playing-card small {
+      font-size: 1rem;
+    }
+
+    .red { color: #e00030; }
+    .black { color: #111; }
+
+    .choice-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .choice-buttons button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      background: linear-gradient(45deg, #ff4500, gold);
+      color: #111;
+    }
+
+    .card-box input {
+      width: 110px;
+      padding: 10px;
+      margin: 12px;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    #result {
+      color: gold;
+      margin: 20px 0;
+    }
+
+    .back-link {
+      color: gold;
+      display: inline-block;
+      margin-top: 20px;
+    }
+
+    button:disabled {
+      opacity: .5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <h1>🃏 High-Low Cards</h1>
+    <div class="balance-box">
+      🪙 <span id="balance">1000</span>
+    </div>
+  </header>
+
+  <main class="card-box">
+
+    <h2>Next Card Guess!</h2>
+    <p class="tagline">পরের কার্ড বড় হবে নাকি ছোট?</p>
+
+    <div class="playing-card black" id="currentCard">
+      <span>A</span>
+      <small>♠</small>
+    </div>
+
+    <p>তোর অনুমান কী?</p>
+
+    <div class="choice-buttons">
+      <button id="higherBtn">HIGHER ⬆</button>
+      <button id="lowerBtn">LOWER ⬇</button>
+    </div>
+
+    <label for="bet">Bet amount:</label>
+    <br>
+
+    <input type="number" id="bet" value="10" min="1">
+
+    <h3 id="result">শুভকামনা!</h3>
+
+    <button id="newGameBtn">NEW CARD 🃏</button>
+
+    <br>
+    <a href="index.html" class="back-link">← Home Page</a>
+
+  </main>
+
+  <script>
+    const KEY = "demoCasinoData";
+
+    const suits = ["♠", "♥", "♦", "♣"];
+    const names = {
+      1: "A", 11: "J", 12: "Q", 13: "K"
+    };
+
+    function getData() {
+      try {
+        const data = JSON.parse(localStorage.getItem(KEY));
+        if (data && typeof data.balance === "number") {
+          return data;
+        }
+      } catch(e) {}
+
+      return { balance: 1000, bet: 10 };
+    }
+
+    let data = getData();
+    let currentRank = 0;
+    let resolving = false;
+
+    function saveData() {
+      localStorage.setItem(KEY, JSON.stringify(data));
+      document.getElementById("balance").textContent = data.balance;
+    }
+
+    function randomCard() {
+      return {
+        rank: Math.floor(Math.random() * 13) + 1,
+        suit: suits[Math.floor(Math.random() * 4)]
+      };
+    }
+
+    function renderCard(card) {
+      const element = document.getElementById("currentCard");
+      const isRed = card.suit === "♥" || card.suit === "♦";
+
+      element.classList.remove("red", "black");
+      element.classList.add(isRed ? "red" : "black");
+
+      const rankName = names[card.rank] || card.rank;
+
+      element.innerHTML =
+        "<span>" + rankName + "</span><small>" +
+        card.suit + "</small>";
+    }
+
+    function setButtons(disabled) {
+      document.getElementById("higherBtn").disabled = disabled;
+      document.getElementById("lowerBtn").disabled = disabled;
+    }
+
+    function newCard() {
+      const card = randomCard();
+      currentRank = card.rank;
+      renderCard(card);
+
+      document.getElementById("result").textContent =
+        "Higher নাকি Lower? অনুমান কর!";
+    }
+
+    function play(choice) {
+      if (resolving) return;
+
+      const bet = Number(document.getElementById("bet").value);
+      const result = document.getElementById("result");
+
+      if (!Number.isInteger(bet) || bet < 1) {
+        result.textContent = "সঠিক Bet amount দে!";
+        return;
+      }
+
+      if (bet > data.balance) {
+        result.textContent = "পর্যাপ্ত virtual coins নেই!";
+        return;
+      }
+
+      resolving = true;
+      setButtons(true);
+
+      const next = randomCard();
+      const previousRank = currentRank;
+
+      renderCard(next);
+      data.balance -= bet;
+
+      if (next.rank === previousRank) {
+        data.balance += bet;
+        result.textContent =
+          "🤝 একই কার্ড! তোর coins ফেরত দেওয়া হয়েছে।";
+      } else {
+        const won =
+          (choice === "higher" && next.rank > previousRank) ||
+          (choice === "lower" && next.rank < previousRank);
+
+        if (won) {
+          const payout = bet * 2;
+          data.balance += payout;
+          result.textContent =
+            "🎉 ঠিক ধরেছিস! +" + payout + " virtual coins!";
+        } else {
+          result.textContent = "😅 ভুল হয়েছে! আবার চেষ্টা কর।";
+        }
+      }
+
+      currentRank = next.rank;
+      data.bet = bet;
+      saveData();
+
+      resolving = false;
+      setButtons(false);
+    }
+
+    document.getElementById("higherBtn").addEventListener(
+      "click", () => play("higher")
+    );
+
+    document.getElementById("lowerBtn").addEventListener(
+      "click", () => play("lower")
+    );
+
+    document.getElementById("newGameBtn").addEventListener(
+      "click", newCard
+    );
+
+    saveData();
+    document.getElementById("bet").value = data.bet || 10;
+    newCard();
+  </script>
+
+</body>
+</html>
