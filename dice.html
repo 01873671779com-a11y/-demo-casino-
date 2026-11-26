@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -104,6 +105,9 @@
 
   </main>
 
+  <script src="achievements.js"></script>
+  <script src="stats.js"></script>
+
   <script>
     const KEY = "demoCasinoData";
 
@@ -178,11 +182,19 @@
             "🎉 সঠিক! Dice এসেছে " + roll +
             "। পেয়েছিস " + payout + " virtual coins!";
 
+          if (typeof recordResult === "function") {
+            recordResult("dice", "win", bet * 5);
+          }
+
         } else {
 
           result.textContent =
             "😅 ভুল হয়েছে! Dice এসেছে " + roll +
             "। আবার চেষ্টা কর!";
+
+          if (typeof recordResult === "function") {
+            recordResult("dice", "loss", 0);
+          }
         }
 
         data.bet = bet;
