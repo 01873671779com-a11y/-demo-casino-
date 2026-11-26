@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -5,45 +6,157 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Demo Casino — Virtual Coins</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    .game-card {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .game-link {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 20px;
+      border-radius: 25px;
+      background: linear-gradient(45deg, #ff4500, gold);
+      color: #111;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .extra-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 25px 0;
+    }
+
+    .extra-links a {
+      color: gold;
+      border: 1px solid gold;
+      padding: 10px 18px;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+  </style>
 </head>
+
 <body>
+
   <div class="welcome-bar" id="welcomeBar" hidden>
     <span id="greeting">Welcome!</span>
     <button class="logout-btn" id="logoutBtn">Logout</button>
   </div>
+
   <header class="topbar">
     <h1>🎰 Demo Casino</h1>
-    <div class="balance-box">🪙 <span id="balance">1000</span> virtual coins</div>
+    <div class="balance-box">
+      🪙 <span id="balance">1000</span> virtual coins
+    </div>
   </header>
+
   <main class="home">
-    <p class="tagline">শুধু virtual coins দিয়ে খেলো — real money নেই।</p>
+
+    <p class="tagline">
+      শুধু virtual coins দিয়ে খেলো — real money নেই।
+    </p>
+
     <section class="game-grid">
-      <article class="game-card"><div class="game-icon">🎰</div><h2>Lucky Slots</h2><p>Slots game শিগগিরই যোগ হবে।</p></article>
-      <article class="game-card"><div class="game-icon">🎲</div><h2>Lucky Dice</h2><p>Dice game শিগগিরই যোগ হবে।</p></article>
-      <article class="game-card"><div class="game-icon">🃏</div><h2>High-Low Cards</h2><p>Card game শিগগিরই যোগ হবে।</p></article>
+
+      <article class="game-card">
+        <div class="game-icon">🎰</div>
+        <h2>Lucky Slots</h2>
+        <p>স্পিন করে ভার্চুয়াল কয়েন জিতো!</p>
+        <a class="game-link" href="slots.html">Play Slots</a>
+      </article>
+
+      <article class="game-card">
+        <div class="game-icon">🎲</div>
+        <h2>Lucky Dice</h2>
+        <p>১ থেকে ৬-এর মধ্যে সংখ্যা অনুমান কর।</p>
+        <a class="game-link" href="dice.html">Play Dice</a>
+      </article>
+
+      <article class="game-card">
+        <div class="game-icon">🃏</div>
+        <h2>High-Low Cards</h2>
+        <p>পরের কার্ড বড় হবে নাকি ছোট?</p>
+        <a class="game-link" href="cards.html">Play Cards</a>
+      </article>
+
     </section>
-    <p class="notice">এটি শেখার জন্য একটি demo project। কোনো real-money betting, deposit বা withdrawal নেই।</p>
+
+    <div class="extra-links">
+      <a href="stats.html">📊 My Statistics</a>
+      <a href="achievements.html">🏆 Achievements</a>
+    </div>
+
+    <p class="notice">
+      এটি শেখার জন্য একটি demo project।
+      কোনো real-money betting, deposit বা withdrawal নেই।
+    </p>
+
   </main>
-  <footer class="footer">Educational demo · Virtual coins only</footer>
+
+  <footer class="footer">
+    Educational demo · Virtual coins only
+  </footer>
+
   <script>
     const USER_KEY = "demoCasinoUser";
     const DATA_KEY = "demoCasinoData";
+
     let user = null;
-    try { user = JSON.parse(localStorage.getItem(USER_KEY) || "null"); } catch {}
-    if (!user || !user.name) location.href = "login.html";
-    else {
-      document.getElementById("welcomeBar").hidden = false;
-      document.getElementById("greeting").textContent = "👋 Welcome, " + user.name + "!";
-    }
-    const saved = (() => { try { return JSON.parse(localStorage.getItem(DATA_KEY) || "null"); } catch { return null; } })();
-    if (!saved || typeof saved.balance !== "number") {
-      localStorage.setItem(DATA_KEY, JSON.stringify({balance: 1000, bet: 10}));
-      document.getElementById("balance").textContent = "1000";
-    } else document.getElementById("balance").textContent = saved.balance;
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      localStorage.removeItem(USER_KEY);
+
+    try {
+      user = JSON.parse(
+        localStorage.getItem(USER_KEY) || "null"
+      );
+    } catch (error) {}
+
+    if (!user || !user.name) {
       location.href = "login.html";
-    });
+    } else {
+      document.getElementById("welcomeBar").hidden = false;
+
+      document.getElementById("greeting").textContent =
+        "👋 Welcome, " + user.name + "!";
+    }
+
+    const saved = (() => {
+      try {
+        return JSON.parse(
+          localStorage.getItem(DATA_KEY) || "null"
+        );
+      } catch (error) {
+        return null;
+      }
+    })();
+
+    if (!saved || typeof saved.balance !== "number") {
+      localStorage.setItem(
+        DATA_KEY,
+        JSON.stringify({
+          balance: 1000,
+          bet: 10
+        })
+      );
+
+      document.getElementById("balance").textContent = "1000";
+    } else {
+      document.getElementById("balance").textContent =
+        saved.balance;
+    }
+
+    document.getElementById("logoutBtn").addEventListener(
+      "click",
+      () => {
+        localStorage.removeItem(USER_KEY);
+        location.href = "login.html";
+      }
+    );
   </script>
+
 </body>
 </html>
