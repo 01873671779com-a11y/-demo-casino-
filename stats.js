@@ -1,3 +1,4 @@
+
 const STATS_KEY = "demoCasinoStats";
 
 function getStats() {
@@ -70,6 +71,11 @@ function recordResult(gameName, result, winAmount = 0) {
     STATS_KEY,
     JSON.stringify(stats)
   );
+
+  // Automatically check achievements
+  if (typeof checkAchievements === "function") {
+    checkAchievements();
+  }
 
   renderStatsPage();
 }
