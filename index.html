@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Casino — Virtual Coins</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="welcome-bar" id="welcomeBar" hidden>
+    <span id="greeting">Welcome!</span>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </div>
+  <header class="topbar">
+    <h1>🎰 Demo Casino</h1>
+    <div class="balance-box">🪙 <span id="balance">1000</span> virtual coins</div>
+  </header>
+  <main class="home">
+    <p class="tagline">শুধু virtual coins দিয়ে খেলো — real money নেই।</p>
+    <section class="game-grid">
+      <article class="game-card"><div class="game-icon">🎰</div><h2>Lucky Slots</h2><p>Slots game শিগগিরই যোগ হবে।</p></article>
+      <article class="game-card"><div class="game-icon">🎲</div><h2>Lucky Dice</h2><p>Dice game শিগগিরই যোগ হবে।</p></article>
+      <article class="game-card"><div class="game-icon">🃏</div><h2>High-Low Cards</h2><p>Card game শিগগিরই যোগ হবে।</p></article>
+    </section>
+    <p class="notice">এটি শেখার জন্য একটি demo project। কোনো real-money betting, deposit বা withdrawal নেই।</p>
+  </main>
+  <footer class="footer">Educational demo · Virtual coins only</footer>
+  <script>
+    const USER_KEY = "demoCasinoUser";
+    const DATA_KEY = "demoCasinoData";
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem(USER_KEY) || "null"); } catch {}
+    if (!user || !user.name) location.href = "login.html";
+    else {
+      document.getElementById("welcomeBar").hidden = false;
+      document.getElementById("greeting").textContent = "👋 Welcome, " + user.name + "!";
+    }
+    const saved = (() => { try { return JSON.parse(localStorage.getItem(DATA_KEY) || "null"); } catch { return null; } })();
+    if (!saved || typeof saved.balance !== "number") {
+      localStorage.setItem(DATA_KEY, JSON.stringify({balance: 1000, bet: 10}));
+      document.getElementById("balance").textContent = "1000";
+    } else document.getElementById("balance").textContent = saved.balance;
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem(USER_KEY);
+      location.href = "login.html";
+    });
+  </script>
+</body>
+</html>
