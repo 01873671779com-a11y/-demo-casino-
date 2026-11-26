@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lucky Dice — Demo Casino</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .dice-box {
+      width: 90%;
+      max-width: 420px;
+      margin: 35px auto;
+      padding: 25px 15px;
+      text-align: center;
+      background: #17121f;
+      border: 2px solid gold;
+      border-radius: 20px;
+    }
+
+    .dice {
+      font-size: 6rem;
+      margin: 25px 0;
+    }
+
+    .dice-box input {
+      width: 110px;
+      padding: 10px;
+      margin: 12px;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    .dice-box select {
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px;
+    }
+
+    .dice-btn {
+      padding: 13px 35px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(45deg, #ff4500, gold);
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    #result {
+      color: gold;
+      margin: 20px 0;
+    }
+
+    .back-link {
+      color: gold;
+      display: inline-block;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <h1>🎲 Lucky Dice</h1>
+    <div class="balance-box">
+      🪙 <span id="balance">1000</span>
+    </div>
+  </header>
+
+  <main class="dice-box">
+
+    <h2>Guess The Number!</h2>
+    <p class="tagline">১ থেকে ৬-এর মধ্যে একটি সংখ্যা বেছে নে</p>
+
+    <div class="dice" id="dice">🎲</div>
+
+    <label for="guess">তোর অনুমান:</label>
+    <br>
+
+    <select id="guess">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+    </select>
+
+    <br>
+
+    <label for="bet">Bet amount:</label>
+    <br>
+
+    <input type="number" id="bet" value="10" min="1">
+
+    <br>
+
+    <button class="dice-btn" id="rollBtn">ROLL DICE 🎲</button>
+
+    <h3 id="result">শুভকামনা!</h3>
+
+    <a href="index.html" class="back-link">← Home Page</a>
+
+  </main>
+
+  <script>
+    const KEY = "demoCasinoData";
+
+    const diceFaces = [
+      "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"
+    ];
+
+    function getData() {
+      try {
+        const data = JSON.parse(localStorage.getItem(KEY));
+
+        if (data && typeof data.balance === "number") {
+          return data;
+        }
+      } catch (e) {}
+
+      return { balance: 1000, bet: 10 };
+    }
+
+    let data = getData();
+
+    function saveData() {
+      localStorage.setItem(KEY, JSON.stringify(data));
+
+      document.getElementById("balance").textContent =
+        data.balance;
+    }
+
+    saveData();
+
+    document.getElementById("bet").value = data.bet || 10;
+
+    document.getElementById("rollBtn").addEventListener("click", function() {
+
+      const bet = Number(document.getElementById("bet").value);
+      const guess = Number(document.getElementById("guess").value);
+
+      const result = document.getElementById("result");
+      const dice = document.getElementById("dice");
+      const button = document.getElementById("rollBtn");
+
+      if (!Number.isInteger(bet) || bet < 1) {
+        result.textContent = "সঠিক Bet amount দে!";
+        return;
+      }
+
+      if (bet > data.balance) {
+        result.textContent = "পর্যাপ্ত virtual coins নেই!";
+        return;
+      }
+
+      button.disabled = true;
+      result.textContent = "Dice ঘুরছে... 🎲";
+
+      const roll = Math.floor(Math.random() * 6) + 1;
+
+      dice.textContent = "🎲";
+
+      setTimeout(() => {
+
+        dice.textContent = diceFaces[roll - 1];
+
+        data.balance -= bet;
+
+        if (roll === guess) {
+
+          const payout = bet * 6;
+
+          data.balance += payout;
+
+          result.textContent =
+            "🎉 সঠিক! Dice এসেছে " + roll +
+            "। পেয়েছিস " + payout + " virtual coins!";
+
+        } else {
+
+          result.textContent =
+            "😅 ভুল হয়েছে! Dice এসেছে " + roll +
+            "। আবার চেষ্টা কর!";
+        }
+
+        data.bet = bet;
+
+        saveData();
+
+        button.disabled = false;
+
+      }, 900);
+
+    });
+  </script>
+
+</body>
+</html>
