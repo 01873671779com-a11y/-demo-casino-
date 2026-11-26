@@ -82,6 +82,9 @@
     <a href="index.html" class="back-link">← Home Page</a>
   </main>
 
+  <script src="achievements.js"></script>
+  <script src="stats.js"></script>
+
   <script>
     const KEY = "demoCasinoData";
     const symbols = ["🍒", "🍋", "🍇", "⭐", "💎"];
@@ -152,6 +155,16 @@
         data.balance += payout;
         data.bet = bet;
         saveData(data);
+
+        // Update demo statistics
+        if (typeof recordResult === "function") {
+          recordResult(
+            "slots",
+            payout > 0 ? "win" : "loss",
+            payout > 0 ? payout - bet : 0
+          );
+        }
+
         document.getElementById("spinBtn").disabled = false;
       }, 700);
     });
