@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lucky Slots — Demo Casino</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .slot-box {
+      width: 90%;
+      max-width: 420px;
+      margin: 35px auto;
+      padding: 25px 15px;
+      text-align: center;
+      background: #17121f;
+      border: 2px solid gold;
+      border-radius: 20px;
+    }
+    .reels {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 25px 0;
+    }
+    .reel {
+      width: 85px;
+      height: 85px;
+      display: grid;
+      place-items: center;
+      font-size: 2.8rem;
+      background: #fff;
+      color: #111;
+      border-radius: 12px;
+    }
+    .slot-btn {
+      padding: 13px 35px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(45deg, #ff4500, gold);
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    .slot-box input {
+      width: 100px;
+      padding: 10px;
+      margin: 12px;
+      text-align: center;
+      border-radius: 8px;
+    }
+    #result { margin: 18px 0; color: gold; }
+    .back-link { color: gold; display: inline-block; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <h1>🎰 Lucky Slots</h1>
+    <div class="balance-box">
+      🪙 <span id="balance">1000</span>
+    </div>
+  </header>
+
+  <main class="slot-box">
+    <h2>Try Your Luck!</h2>
+    <p class="tagline">Virtual coins only</p>
+
+    <div class="reels">
+      <div class="reel" id="reel1">🍒</div>
+      <div class="reel" id="reel2">🍋</div>
+      <div class="reel" id="reel3">🍇</div>
+    </div>
+
+    <label for="bet">Bet amount:</label>
+    <br>
+    <input type="number" id="bet" value="10" min="1" max="1000">
+
+    <br>
+    <button class="slot-btn" id="spinBtn">SPIN 🎰</button>
+
+    <h3 id="result">শুভকামনা!</h3>
+    <a href="index.html" class="back-link">← Home Page</a>
+  </main>
+
+  <script>
+    const KEY = "demoCasinoData";
+    const symbols = ["🍒", "🍋", "🍇", "⭐", "💎"];
+
+    function getData() {
+      try {
+        const data = JSON.parse(localStorage.getItem(KEY));
+        if (data && typeof data.balance === "number") return data;
+      } catch(e) {}
+      return { balance: 1000, bet: 10 };
+    }
+
+    function saveData(data) {
+      localStorage.setItem(KEY, JSON.stringify(data));
+      document.getElementById("balance").textContent = data.balance;
+    }
+
+    let data = getData();
+    saveData(data);
+
+    document.getElementById("bet").value = data.bet || 10;
+
+    document.getElementById("spinBtn").addEventListener("click", () => {
+      const bet = Number(document.getElementById("bet").value);
+      const result = document.getElementById("result");
+
+      if (!Number.isInteger(bet) || bet < 1) {
+        result.textContent = "সঠিক Bet amount দে!";
+        return;
+      }
+
+      if (bet > data.balance) {
+        result.textContent = "পর্যাপ্ত virtual coins নেই!";
+        return;
+      }
+
+      const reels = [
+        document.getElementById("reel1"),
+        document.getElementById("reel2"),
+        document.getElementById("reel3")
+      ];
+
+      document.getElementById("spinBtn").disabled = true;
+      result.textContent = "ঘুরছে... 🎰";
+
+      reels.forEach(reel => {
+        reel.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      });
+
+      setTimeout(() => {
+        const a = reels[0].textContent;
+        const b = reels[1].textContent;
+        const c = reels[2].textContent;
+
+        data.balance -= bet;
+        let payout = 0;
+
+        if (a === b && b === c) {
+          payout = bet * 10;
+          result.textContent = "🎉 JACKPOT! +" + payout + " coins";
+        } else if (a === b || b === c || a === c) {
+          payout = bet * 2;
+          result.textContent = "🎊 তুমি জিতেছ! +" + payout + " coins";
+        } else {
+          result.textContent = "আবার চেষ্টা কর!";
+        }
+
+        data.balance += payout;
+        data.bet = bet;
+        saveData(data);
+        document.getElementById("spinBtn").disabled = false;
+      }, 700);
+    });
+  </script>
+</body>
+</html>
